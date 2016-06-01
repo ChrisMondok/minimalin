@@ -39,6 +39,7 @@ static GPoint time_points[12] = {
 };
 static GPoint SOUTH_INFO_CENTER = { .x = 90, .y = 118 };
 static GPoint NORTH_INFO_CENTER = { .x = 90, .y = 62 };
+static GPoint EAST_INFO_CENTER = { .x = 130, .y = 90 };
 #else
 static GPoint ticks_points[12][2] = {
   {{72, 0}  , {72, 7}  },
@@ -70,6 +71,7 @@ static GPoint time_points[12] = {
 };
 static GPoint SOUTH_INFO_CENTER = { .x = 72, .y = 112 };
 static GPoint NORTH_INFO_CENTER = { .x = 72, .y = 56 };
+static GPoint EAST_INFO_CENTER = { .x = 36, .y = 84 };
 #endif
 
 typedef enum {
@@ -118,6 +120,7 @@ static GRect s_root_layer_bounds;
 static GPoint s_center;
 
 static TextBlock * s_north_info;
+static TextBlock * s_east_info;
 static TextBlock * s_south_info;
 static TextBlock * s_hour_text;
 static TextBlock * s_minute_text;
@@ -449,6 +452,21 @@ static void update_info_layer(){
 static void bt_handler(bool connected){
   s_bt_connected = connected;
   update_info_layer();
+
+static void step_handler(HealthEventType event, void *context){
+  if(event == HealthEventSignificantUpdate){
+    char step_text[8] = {0};
+    const GColor info_color = config_get_color(s_config, ConfigKeyInfoColor);
+    const int steps = (int)health_service_sum_today(HealthMetricStepCount);
+    if(steps > 10000){
+      snprintf(step_text, sizeof(step_text), "y%dk", steps / 1000);
+    }else if(steps > 1000){
+      snprintf(step_text, sizeof(step_text), "y%d.%dk", steps / 1000, (steps % 1000) / 100);
+    }else{
+      snprintf(step_text, sizeof(step_text), "y%d", steps);
+    }
+    text_block_set_text(s_east_info, step_text, info_color);
+  }
 }
 
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed){
@@ -471,6 +489,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed){
   }
   layer_mark_dirty(s_tick_layer);
   update_info_layer();
+  step_handler(HealthEventSignificantUpdate, NULL);
 }
 
 static void main_window_load(Window *window) {
@@ -480,11 +499,13 @@ static void main_window_load(Window *window) {
   update_current_time();
   window_set_background_color(window, config_get_color(s_config, ConfigKeyBackgroundColor));
 
-
+  s_east_info = text_block_create(s_root_layer, EAST_INFO_CENTER, s_font);
   s_south_info = text_block_create(s_root_layer, SOUTH_INFO_CENTER, s_font);
   text_block_set_visible(s_south_info, config_get_bool(s_config, ConfigKeyDateDisplayed));
 
   s_north_info = text_block_create(s_root_layer, NORTH_INFO_CENTER, s_font);
+  health_service_events_subscribe(step_handler, NULL);
+  step_handler(HealthEventSignificantUpdate, NULL);
   bluetooth_connection_service_subscribe(bt_handler);
   bt_handler(connection_service_peek_pebble_app_connection());
 
@@ -552,9 +573,11 @@ static void main_window_unload(Window *window) {
 
   layer_destroy(s_tick_layer);
 
+  health_service_events_unsubscribe();
   bluetooth_connection_service_unsubscribe();
   text_block_destroy(s_south_info);
   text_block_destroy(s_north_info);
+  text_block_destroy(s_east_info);
 }
 
 static void init() {

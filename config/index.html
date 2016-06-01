@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
     <link rel='stylesheet' type='text/css' href='css/slate.min.css'>
     <script type='text/javascript' src='js/ractive.min.js'></script>
+    <script type='text/javascript' src='js/ractive-transitions-slide.js'></script>
     <script type='text/javascript' src='//cdn.jsdelivr.net/ractive.load/latest/ractive-load.min.js'></script>
   </head>
   <body>
@@ -76,7 +77,7 @@
        background_color: '#000000',
        date_color: '#555555',
        time_color: '#AAAAAA',
-       info_color: '#555555',
+       complications_color: '#555555',
        temperature_unit: 0,
        refresh_rate: fromRefreshRate[20],
        weather_enabled: true,
@@ -99,7 +100,7 @@
        background_color: color('background_color', defaults.background_color),
        date_color: color('date_color', defaults.date_color),
        time_color: color('time_color', defaults.time_color),
-       info_color: color('info_color', defaults.info_color),
+       complications_color: color('complications_color', defaults.complications_color),
        weather_enabled: bool('weather_enabled', defaults.weather_enabled),
        location: query('location',defaults.location),
        platform: queryIn('platform', ['basalt', 'chalk', 'aplite'], 'basalt'),
