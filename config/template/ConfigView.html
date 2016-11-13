@@ -5,7 +5,7 @@
 <link rel="ractive" href="./Toggle.html">
 
 <div id="config_page">
-  <div id="preview">
+  <div id="preview" style="display: none">
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
     viewBox="0 0 355 355" enable-background="new 0 0 355 355" xml:space="preserve">
     {{#if platform === 'basalt' || platform === "aplite" || platform === "diorite"}}
@@ -55,7 +55,7 @@
     <circle fill="{{ rainbow_mode ? '#AA00FF' : hourHandColor }}" cx="177.5" cy="178.499" r="9.991"/>
   </svg>
   </div>
-  <div id="preview_spacer"></div>
+  <div id="preview_spacer" style="display: none"></div>
   <div id="content">
     <div class="section">
       <div>Themes</div>
